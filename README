@@ -1,5 +1,12 @@
-This directory contains makefiles for our in-house toolchain. Several toolchains can be
-installed at the same time.
+This directory contains makefiles for an in-house toolchain that currenly includes:
+
+* gcc-4.9.2
+* boost-1.56
+* tbb-43_20140724oss
+
+Several toolchains can be installed at the same time.
+
+The compiler and binaries produced by it have rpath set, executing them does not require setting PATH and LD_LIBRARY_PATH.
 
 Prerequisites
 =======
