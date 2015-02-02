@@ -1,0 +1,17 @@
+This directory contains makefiles for our in-house toolchain. Several toolchains can be
+installed at the same time.
+
+Prerequisites
+=======
+$ yum install bison flex texinfo {elfutils,libunwind,gettext,curl,sqlite,openssl,readline,bzip2,zlib,libpng}-devel
+
+Building
+========
+
+Increment the number in file PREFIX. And then invoke:
+
+$ mkdir -p `cat PREFIX`
+$ sudo chown $USER `cat PREFIX`
+$ make clean
+$ make download
+$ make -j12

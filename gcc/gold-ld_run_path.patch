@@ -1,0 +1,35 @@
+diff --git i/gold/options.cc w/gold/options.cc
+index fe9a00e0..e898de53 100644
+--- i/gold/options.cc
++++ w/gold/options.cc
+@@ -1095,6 +1095,30 @@ General_options::finalize()
+   if (this->nmagic() || this->omagic())
+     this->set_static(true);
+ 
++  // LD_RUN_PATH determines the default for -rpath.
++  if (this->rpath().empty())
++    {
++      const char* rpath_env = getenv("LD_RUN_PATH");
++      if (!rpath_env)
++        rpath_env = "";
++      std::string s(rpath_env);
++
++      for (size_t pos = 0, sep = s.find(':');
++           ;
++           pos = sep + 1, sep = s.find(':', pos))
++        {
++          if (sep == pos)
++            continue;
++
++          if (sep != std::string::npos)
++            s[sep] = '\0';
++          this->add_to_rpath(s.c_str() + pos);
++
++          if (sep == std::string::npos)
++            break;
++        }
++    }
++
+   // If --thread_count is specified, it applies to
+   // --thread-count-{initial,middle,final}, though it doesn't override
+   // them.
