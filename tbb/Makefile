@@ -4,7 +4,7 @@ JOBS := $(shell getconf _NPROCESSORS_ONLN)
 DOWNLOAD_DIR := ~/Downloads
 DOWNLOAD_DIR := $(shell echo ${DOWNLOAD_DIR})
 
-prefix := $(shell cat PREFIX)
+prefix := $(shell cat ../PREFIX)
 
 tbb_version := 43_20140724oss
 PREFIX := ${prefix}/tbb${tbb_version}

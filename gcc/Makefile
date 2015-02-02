@@ -11,7 +11,7 @@
 SHELL := /bin/bash
 
 GCC_VERSION := 4.9.2
-PREFIX := $(shell cat PREFIX)
+PREFIX := $(shell cat ../PREFIX)
 
 DOWNLOAD_DIR := ~/Downloads
 DOWNLOAD_DIR := $(shell echo ${DOWNLOAD_DIR})
@@ -61,8 +61,8 @@ suffix.gcc.4.9.2 := 49
 conf.gcc.4.8.3 := --program-suffix=${suffix.gcc.${gcc_version}} --disable-libunwind-exceptions --with-system-zlib --enable-__cxa_atexit --enable-checking=release --disable-multilib $(patsubst %,--with-%-include=${PREFIX}/include,${libs}) $(patsubst %,--with-%-lib=${PREFIX}/lib64,${libs}) --enable-languages=c,c++,fortran,lto --enable-plugin --enable-initfini-array --enable-gold=default --enable-libstdcxx-time --enable-linker-build-id --with-linker-hash-style=gnu --disable-libgcj
 conf.gcc.4.9.2 := --program-suffix=${suffix.gcc.${gcc_version}} --disable-libunwind-exceptions --with-system-zlib --enable-__cxa_atexit --enable-checking=release --disable-multiarch --disable-multilib $(patsubst %,--with-%-include=${PREFIX}/include,${libs}) $(patsubst %,--with-%-lib=${PREFIX}/lib64,${libs}) --enable-languages=c,c++,fortran,lto --enable-plugin --enable-initfini-array --enable-gold=default --enable-libstdcxx-time --enable-linker-build-id --with-linker-hash-style=gnu --disable-libgcj
 
-#export CPPFLAGS := -march=native -fmessage-length=0 -I${PREFIX}/include
-export CPPFLAGS := -march=native -fmessage-length=0
+#export CPPFLAGS := -march=native -fmessage-length=0
+export CPPFLAGS := -fmessage-length=0
 export LDFLAGS := -L${PREFIX}/lib64
 export LD_RUN_PATH := ${PREFIX}/lib64
 
@@ -169,7 +169,7 @@ build.% : configure.%
 
 install.make : install.% : build.%
 	${MAKE} -C $*-${$*_version}-obj install | tee $@~; exit $${PIPESTATUS[0]}
-	cd $(dir ${PREFIX}) && ln -fs $(notdir ${PREFIX})/bin/make
+#	cd $(dir ${PREFIX}) && ln -fs $(notdir ${PREFIX})/bin/make
 	mv $@~ $@
 
 install.% : build.%
