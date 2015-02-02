@@ -191,7 +191,7 @@ install.% : build.%
 
 
 clean :
-	rm -rf build.* configure.* install.* *-obj ${PREFIX}
+	rm -rf build.* configure.* install.* *-obj
 
 # -j8: 5:41
 install_libs : $(addprefix install.,${libs})

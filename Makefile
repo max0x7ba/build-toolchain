@@ -20,6 +20,9 @@ ${PREFIX} :
 build.% : | ${PREFIX}
 	${MAKE} -C ${$*.dir}
 
+clean :
+	rm -rf ${PREFIX}/*
+
 clean.% :
 	${MAKE} -C ${$*.dir} clean
 
