@@ -10,7 +10,7 @@
 
 SHELL := /bin/bash
 
-GCC_VERSION := 4.9.2
+GCC_VERSION := 5.1.0
 PREFIX := $(shell cat ../PREFIX)
 
 DOWNLOAD_DIR := ~/Downloads
@@ -32,6 +32,13 @@ isl_version.4.9.2      := 0.12.2
 cloog_version.4.9.2    := 0.18.1
 binutils_version.4.9.2 := 2.25
 
+gmp_version.5.1.0      := 4.3.2
+mpfr_version.5.1.0     := 2.4.2
+mpc_version.5.1.0      := 0.8.1
+isl_version.5.1.0      := 0.14
+cloog_version.5.1.0    := null
+binutils_version.5.1.0 := 2.25
+
 gmp_version   := ${gmp_version.${gcc_version}}
 mpfr_version  := ${mpfr_version.${gcc_version}}
 mpc_version   := ${mpc_version.${gcc_version}}
@@ -41,25 +48,25 @@ binutils_version := ${binutils_version.${gcc_version}}
 
 make_version  := 4.1
 
-downloads := \
-  ${DOWNLOAD_DIR}/gcc-${gcc_version}.tar.bz2 \
-  ${DOWNLOAD_DIR}/gmp-${gmp_version}.tar.bz2 \
-  ${DOWNLOAD_DIR}/mpfr-${mpfr_version}.tar.bz2 \
-  ${DOWNLOAD_DIR}/mpc-${mpc_version}.tar.gz \
-  ${DOWNLOAD_DIR}/cloog-${cloog_version}.tar.gz \
-  ${DOWNLOAD_DIR}/binutils-${binutils_version}.tar.bz2 \
-  ${DOWNLOAD_DIR}/isl-${isl_version}.tar.bz2 \
-  ${DOWNLOAD_DIR}/make-${make_version}.tar.bz2
+libs.5.1.0 := gmp mpfr mpc isl binutils
+libs := $(or ${libs.${gcc_version}},gmp mpfr mpc cloog isl binutils)
 
+extension.mpc := gz
+extension.cloog := gz
+extension = $(or ${extension.${1}},bz2)
+
+downloads := $(foreach lib,${libs},${DOWNLOAD_DIR}/${lib}-${${lib}_version}.tar.$(call extension,${lib}))
 
 # TODO: 32/64 bit mode switch
 
-libs := gmp mpfr mpc cloog isl binutils
-
 suffix.gcc.4.8.3 := 48
 suffix.gcc.4.9.2 := 49
+suffix.gcc.5.1.0 := 51
+
 conf.gcc.4.8.3 := --program-suffix=${suffix.gcc.${gcc_version}} --disable-libunwind-exceptions --with-system-zlib --enable-__cxa_atexit --enable-checking=release --disable-multilib $(patsubst %,--with-%-include=${PREFIX}/include,${libs}) $(patsubst %,--with-%-lib=${PREFIX}/lib64,${libs}) --enable-languages=c,c++,fortran,lto --enable-plugin --enable-initfini-array --enable-gold=default --enable-libstdcxx-time --enable-linker-build-id --with-linker-hash-style=gnu --disable-libgcj
 conf.gcc.4.9.2 := --program-suffix=${suffix.gcc.${gcc_version}} --disable-libunwind-exceptions --with-system-zlib --enable-__cxa_atexit --enable-checking=release --disable-multiarch --disable-multilib $(patsubst %,--with-%-include=${PREFIX}/include,${libs}) $(patsubst %,--with-%-lib=${PREFIX}/lib64,${libs}) --enable-languages=c,c++,fortran,lto --enable-plugin --enable-initfini-array --enable-gold=default --enable-libstdcxx-time --enable-linker-build-id --with-linker-hash-style=gnu --disable-libgcj
+
+conf.gcc.5.1.0 := --program-suffix=${suffix.gcc.${gcc_version}} --disable-libunwind-exceptions --with-system-zlib --enable-__cxa_atexit --enable-shared --enable-threads=posix --enable-checking=release --disable-multiarch --disable-multilib $(patsubst %,--with-%-include=${PREFIX}/include,${libs}) $(patsubst %,--with-%-lib=${PREFIX}/lib64,${libs}) --enable-languages=c,c++,fortran,lto --enable-plugin --enable-initfini-array --enable-gold=default --enable-libstdcxx-time --enable-linker-build-id --with-linker-hash-style=gnu --disable-libgcj --enable-gnu-unique-object
 
 #export CPPFLAGS := -march=native -fmessage-length=0
 export CPPFLAGS := -fmessage-length=0
@@ -78,6 +85,7 @@ install : install.wrappers install.make
 dbg :
 	@echo "PATH=$$PATH"
 	@echo "PREFIX=${PREFIX}"
+	@echo "libs=${libs}"
 
 # build new make with the new gcc
 configure.make build.make install.make : PATH := ${PREFIX}/bin:${PATH}
@@ -106,13 +114,13 @@ configure.cloog : install.gmp install.isl | cloog-${cloog_version}-src cloog-${c
 	( cd cloog-${cloog_version}-obj && ../cloog-${cloog_version}-src/configure --prefix=${PREFIX} --libdir=${PREFIX}/lib64 --with-gmp-prefix=${PREFIX} --with-isl-prefix=${PREFIX} ) | tee $@~; exit $${PIPESTATUS[0]}
 	mv $@~ $@
 
-configure.binutils : install.isl install.cloog install.gmp install.mpfr install.mpc | binutils-${binutils_version}-src binutils-${binutils_version}-obj
+configure.binutils : install.isl install.gmp install.mpfr install.mpc | binutils-${binutils_version}-src binutils-${binutils_version}-obj
 	( cd binutils-${binutils_version}-obj && ../binutils-${binutils_version}-src/configure --prefix=${PREFIX} --libdir=${PREFIX}/lib64 --enable-lto --enable-plugins --enable-gold=default --enable-threads ${configure.binutils.gcc-${stock_gcc_version}} ) | tee $@~; exit $${PIPESTATUS[0]}
 	mv $@~ $@
 
 configure.gcc build.gcc install.gcc : PATH := ${PREFIX}/bin:${PATH}
 
-configure.gcc : install.isl install.gmp install.mpc install.mpfr install.cloog install.binutils | gcc-${gcc_version}-obj gcc-${gcc_version}-src
+configure.gcc : ${libs:%=install.%} | gcc-${gcc_version}-obj gcc-${gcc_version}-src
 	( cd gcc-${gcc_version}-obj && ../gcc-${gcc_version}-src/configure --prefix=${PREFIX} ${conf.gcc.${gcc_version}} ) | tee $@~; exit $${PIPESTATUS[0]}
 	mv $@~ $@
 
