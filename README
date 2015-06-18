@@ -1,6 +1,6 @@
 This directory contains makefiles for an in-house toolchain that currenly includes:
 
-* gcc-4.9.2
+* gcc-5.1.0
 * boost-1.56
 * tbb-43_20140724oss
 
