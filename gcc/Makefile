@@ -63,10 +63,13 @@ suffix.gcc.4.8.3 := 48
 suffix.gcc.4.9.2 := 49
 suffix.gcc.5.1.0 := 51
 
+build_target.gcc.5.1.0 := profiledbootstrap
+build_target.gcc := ${build_target.gcc.${gcc_version}}
+
 conf.gcc.4.8.3 := --program-suffix=${suffix.gcc.${gcc_version}} --disable-libunwind-exceptions --with-system-zlib --enable-__cxa_atexit --enable-checking=release --disable-multilib $(patsubst %,--with-%-include=${PREFIX}/include,${libs}) $(patsubst %,--with-%-lib=${PREFIX}/lib64,${libs}) --enable-languages=c,c++,fortran,lto --enable-plugin --enable-initfini-array --enable-gold=default --enable-libstdcxx-time --enable-linker-build-id --with-linker-hash-style=gnu --disable-libgcj
 conf.gcc.4.9.2 := --program-suffix=${suffix.gcc.${gcc_version}} --disable-libunwind-exceptions --with-system-zlib --enable-__cxa_atexit --enable-checking=release --disable-multiarch --disable-multilib $(patsubst %,--with-%-include=${PREFIX}/include,${libs}) $(patsubst %,--with-%-lib=${PREFIX}/lib64,${libs}) --enable-languages=c,c++,fortran,lto --enable-plugin --enable-initfini-array --enable-gold=default --enable-libstdcxx-time --enable-linker-build-id --with-linker-hash-style=gnu --disable-libgcj
 
-conf.gcc.5.1.0 := --program-suffix=${suffix.gcc.${gcc_version}} --disable-libunwind-exceptions --with-system-zlib --enable-__cxa_atexit --enable-shared --enable-threads=posix --enable-checking=release --disable-multiarch --disable-multilib $(patsubst %,--with-%-include=${PREFIX}/include,${libs}) $(patsubst %,--with-%-lib=${PREFIX}/lib64,${libs}) --enable-languages=c,c++,fortran,lto --enable-plugin --enable-initfini-array --enable-gold=default --enable-libstdcxx-time --enable-linker-build-id --with-linker-hash-style=gnu --disable-libgcj --enable-gnu-unique-object
+conf.gcc.5.1.0 := --program-suffix=${suffix.gcc.${gcc_version}} --disable-libunwind-exceptions --with-system-zlib --enable-__cxa_atexit --enable-shared --enable-threads=posix --enable-checking=release --disable-multiarch --disable-multilib $(patsubst %,--with-%-include=${PREFIX}/include,${libs}) $(patsubst %,--with-%-lib=${PREFIX}/lib64,${libs}) --enable-languages=c,c++,fortran,lto --enable-plugin --enable-initfini-array --enable-gold=default --enable-libstdcxx-time --enable-linker-build-id --with-linker-hash-style=gnu --disable-libgcj --enable-gnu-unique-object --with-build-config=bootstrap-lto
 
 #export CPPFLAGS := -march=native -fmessage-length=0
 export CPPFLAGS := -fmessage-length=0
@@ -172,7 +175,7 @@ ${DOWNLOAD_DIR}/% : | ${DOWNLOAD_DIR}
 	curl --output $@ ftp://gcc.gnu.org/pub/gcc/infrastructure/${@F}
 
 build.% : configure.%
-	${MAKE} -C $*-${$*_version}-obj | tee $@~; exit $${PIPESTATUS[0]}
+	${MAKE} -C $*-${$*_version}-obj ${build_target.$*} | tee $@~; exit $${PIPESTATUS[0]}
 	mv $@~ $@
 
 install.make : install.% : build.%
