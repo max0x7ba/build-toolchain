@@ -6,7 +6,7 @@ DOWNLOAD_DIR := $(shell echo ${DOWNLOAD_DIR})
 
 prefix := $(shell cat ../PREFIX)
 
-tbb_version := 43_20140724oss
+tbb_version := 43_20150611oss
 PREFIX := ${prefix}/tbb${tbb_version}
 
 export PATH := ${prefix}/bin:${PATH}
@@ -16,7 +16,7 @@ export CC := ${prefix}/bin/gcc
 all : install.tbb.${tbb_version}
 
 build.tbb.${tbb_version} : | tbb${tbb_version}-src
-	nice ${MAKE} -C tbb${tbb_version}-src -j${JOBS}
+	${MAKE} -C tbb${tbb_version}-src -j${JOBS} CPPFLAGS='-std=gnu++14 -pthread' CFLAGS='-pthread' LDFLAGS='-pthread'
 	touch $@
 
 ${PREFIX}/lib64 ${PREFIX}/include : build.tbb.${tbb_version} | ${PREFIX}

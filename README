@@ -10,7 +10,7 @@ The compiler and binaries produced by it have rpath set, executing them does not
 
 Prerequisites
 =======
-$ yum install bison flex texinfo {elfutils,libunwind,gettext,curl,sqlite,openssl,readline,bzip2,zlib,libpng}-devel
+$ yum install bison flex texinfo {elfutils,libunwind,gettext,curl,sqlite,openssl,readline,bzip2,zlib,libpng,python}-devel
 
 Building
 ========
