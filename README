@@ -1,7 +1,7 @@
 This directory contains makefiles for an in-house toolchain that currenly includes:
 
-* gcc-5.1.0
-* boost-1.56
+* gcc-5.2.0
+* boost-1.58
 * tbb-43_20140724oss
 
 Several toolchains can be installed at the same time.
