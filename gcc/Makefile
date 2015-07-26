@@ -10,7 +10,7 @@
 
 SHELL := /bin/bash
 
-GCC_VERSION := 5.1.0
+GCC_VERSION := 5.2.0
 PREFIX := $(shell cat ../PREFIX)
 
 DOWNLOAD_DIR := ~/Downloads
@@ -36,8 +36,18 @@ gmp_version.5.1.0      := 4.3.2
 mpfr_version.5.1.0     := 2.4.2
 mpc_version.5.1.0      := 0.8.1
 isl_version.5.1.0      := 0.14
-cloog_version.5.1.0    := null
 binutils_version.5.1.0 := 2.25
+
+# TODO: switch URLs for the latest versions
+# gmp_version.5.2.0      := 6.0.0a
+# mpfr_version.5.2.0     := 3.1.3
+# mpc_version.5.2.0      := 1.0.3
+# isl_version.5.2.0      := 0.15
+gmp_version.5.2.0      := 4.3.2
+mpfr_version.5.2.0     := 2.4.2
+mpc_version.5.2.0      := 0.8.1
+isl_version.5.2.0      := 0.14
+binutils_version.5.2.0 := 2.25
 
 gmp_version   := ${gmp_version.${gcc_version}}
 mpfr_version  := ${mpfr_version.${gcc_version}}
@@ -49,19 +59,22 @@ binutils_version := ${binutils_version.${gcc_version}}
 make_version  := 4.1
 
 libs.5.1.0 := gmp mpfr mpc isl binutils
+libs.5.2.0 := ${libs.5.1.0}
 libs := $(or ${libs.${gcc_version}},gmp mpfr mpc cloog isl binutils)
 
 extension.mpc := gz
 extension.cloog := gz
 extension = $(or ${extension.${1}},bz2)
 
-downloads := $(foreach lib,${libs},${DOWNLOAD_DIR}/${lib}-${${lib}_version}.tar.$(call extension,${lib}))
+downloads := $(foreach app,gcc make,${DOWNLOAD_DIR}/${app}-${${app}_version}.tar.bz2) \
+  $(foreach lib,${libs},${DOWNLOAD_DIR}/${lib}-${${lib}_version}.tar.$(call extension,${lib}))
 
 # TODO: 32/64 bit mode switch
 
 suffix.gcc.4.8.3 := 48
 suffix.gcc.4.9.2 := 49
 suffix.gcc.5.1.0 := 51
+suffix.gcc.5.2.0 := 52
 
 build_target.gcc.5.1.0 := profiledbootstrap
 build_target.gcc := ${build_target.gcc.${gcc_version}}
@@ -70,6 +83,8 @@ conf.gcc.4.8.3 := --program-suffix=${suffix.gcc.${gcc_version}} --disable-libunw
 conf.gcc.4.9.2 := --program-suffix=${suffix.gcc.${gcc_version}} --disable-libunwind-exceptions --with-system-zlib --enable-__cxa_atexit --enable-checking=release --disable-multiarch --disable-multilib $(patsubst %,--with-%-include=${PREFIX}/include,${libs}) $(patsubst %,--with-%-lib=${PREFIX}/lib64,${libs}) --enable-languages=c,c++,fortran,lto --enable-plugin --enable-initfini-array --enable-gold=default --enable-libstdcxx-time --enable-linker-build-id --with-linker-hash-style=gnu --disable-libgcj
 
 conf.gcc.5.1.0 := --program-suffix=${suffix.gcc.${gcc_version}} --disable-libunwind-exceptions --with-system-zlib --enable-__cxa_atexit --enable-shared --enable-threads=posix --enable-checking=release --disable-multiarch --disable-multilib $(patsubst %,--with-%-include=${PREFIX}/include,${libs}) $(patsubst %,--with-%-lib=${PREFIX}/lib64,${libs}) --enable-languages=c,c++,fortran,lto --enable-plugin --enable-initfini-array --enable-gold=default --enable-libstdcxx-time --enable-linker-build-id --with-linker-hash-style=gnu --disable-libgcj --enable-gnu-unique-object --with-build-config=bootstrap-lto
+
+conf.gcc.5.2.0 := ${conf.gcc.5.1.0}
 
 #export CPPFLAGS := -march=native -fmessage-length=0
 export CPPFLAGS := -fmessage-length=0

@@ -4,7 +4,7 @@ JOBS := $(shell getconf _NPROCESSORS_ONLN)
 DOWNLOAD_DIR := ~/Downloads
 DOWNLOAD_DIR := $(shell echo ${DOWNLOAD_DIR})
 
-BOOST_VERSION := 1_56_0
+BOOST_VERSION := 1_58_0
 prefix := $(shell cat ../PREFIX)
 export PATH := ${prefix}/bin:${PATH}
 PREFIX := ${prefix}/boost-$(subst _,.,${BOOST_VERSION})
