@@ -77,12 +77,24 @@ suffix.gcc.5.1.0 := 51
 suffix.gcc.5.2.0 := 52
 
 build_target.gcc.5.1.0 := profiledbootstrap
+build_target.gcc.5.2.0 := profiledbootstrap
 build_target.gcc := ${build_target.gcc.${gcc_version}}
+
+# CentOS release 5.11 (Final)
+# Red Hat Enterprise Linux Server release 5.6 (Tikanga)
+# Red Hat Enterprise Linux Server release 6.2 (Santiago)
+redhat_version := $(or $(shell sed -e 's/.* release \([0-9]\.[0-9]\+\) .*/\1/' /etc/redhat-release 2>/dev/null),6.6)
+redhat_major := $(word 1,$(subst ., ,${redhat_version}))
+# $(info ${redhat_version})
+# $(info ${redhat_major})
 
 conf.gcc.4.8.3 := --program-suffix=${suffix.gcc.${gcc_version}} --disable-libunwind-exceptions --with-system-zlib --enable-__cxa_atexit --enable-checking=release --disable-multilib $(patsubst %,--with-%-include=${PREFIX}/include,${libs}) $(patsubst %,--with-%-lib=${PREFIX}/lib64,${libs}) --enable-languages=c,c++,fortran,lto --enable-plugin --enable-initfini-array --enable-gold=default --enable-libstdcxx-time --enable-linker-build-id --with-linker-hash-style=gnu --disable-libgcj
 conf.gcc.4.9.2 := --program-suffix=${suffix.gcc.${gcc_version}} --disable-libunwind-exceptions --with-system-zlib --enable-__cxa_atexit --enable-checking=release --disable-multiarch --disable-multilib $(patsubst %,--with-%-include=${PREFIX}/include,${libs}) $(patsubst %,--with-%-lib=${PREFIX}/lib64,${libs}) --enable-languages=c,c++,fortran,lto --enable-plugin --enable-initfini-array --enable-gold=default --enable-libstdcxx-time --enable-linker-build-id --with-linker-hash-style=gnu --disable-libgcj
 
-conf.gcc.5.1.0 := --program-suffix=${suffix.gcc.${gcc_version}} --disable-libunwind-exceptions --with-system-zlib --enable-__cxa_atexit --enable-shared --enable-threads=posix --enable-checking=release --disable-multiarch --disable-multilib $(patsubst %,--with-%-include=${PREFIX}/include,${libs}) $(patsubst %,--with-%-lib=${PREFIX}/lib64,${libs}) --enable-languages=c,c++,fortran,lto --enable-plugin --enable-initfini-array --enable-gold=default --enable-libstdcxx-time --enable-linker-build-id --with-linker-hash-style=gnu --disable-libgcj --enable-gnu-unique-object --with-build-config=bootstrap-lto
+conf.gcc.5.1.0.redhat.5 := --disable-gnu-unique-object
+conf.gcc.5.1.0.redhat.6 := --enable-linker-build-id --enable-gnu-unique-object --with-build-config=bootstrap-lto
+conf.gcc.5.1.0.redhat := ${conf.gcc.5.1.0.redhat.${redhat_major}}
+conf.gcc.5.1.0 := --program-suffix=${suffix.gcc.${gcc_version}} --disable-libunwind-exceptions --with-system-zlib --enable-__cxa_atexit --enable-shared --enable-threads=posix --enable-checking=release --disable-multiarch --disable-multilib $(patsubst %,--with-%-include=${PREFIX}/include,${libs}) $(patsubst %,--with-%-lib=${PREFIX}/lib64,${libs}) --enable-languages=c,c++,fortran,lto --enable-plugin --enable-initfini-array --enable-gold=default --enable-libstdcxx-time --with-linker-hash-style=gnu --disable-libgcj ${conf.gcc.5.1.0.redhat}
 
 conf.gcc.5.2.0 := ${conf.gcc.5.1.0}
 
