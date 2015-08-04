@@ -4,31 +4,39 @@ JOBS := $(shell getconf _NPROCESSORS_ONLN)
 DOWNLOAD_DIR := ~/Downloads
 DOWNLOAD_DIR := $(shell echo ${DOWNLOAD_DIR})
 
-PREFIX := $(shell cat ../PREFIX)
-
+# TODO: make it global toolchain configuration.
 quickfix_version := 1.14.4
 boost_version := 1.58.0
 tbb_version := 43_20150611oss
 
-#export PATH := ${PREFIX}/bin:${PATH}
+prefix := $(shell cat ../PREFIX)
+PREFIX := ${prefix}/quickfix-${quickfix_version}
 
-CPPFLAGS := -fmessage-length=0 -Wno-deprecated-declarations
+export PATH := ${prefix}/bin:${PATH}
+
+CPPFLAGS := -fmessage-length=0 -Wno-deprecated-declarations -pthread
 CXXFLAGS := -std=gnu++14
-#LDFLAGS := -Wl,-rpath,${PREFIX}/lib64 -L${PREFIX}/boost-${boost_version}/lib64 -Wl,-rpath,${PREFIX}/boost-${boost_version}/lib64 -L${PREFIX}/tbb${tbb_version}/lib64 -Wl,-rpath,${PREFIX}/tbb${tbb_version}/lib64
-#LDFLAGS := -L${PREFIX}/boost-${boost_version}/lib64 -L${PREFIX}/tbb${tbb_version}/lib64
+lib_dirs := $(patsubst %,${prefix}/%/lib64,boost-${boost_version} tbb${tbb_version})
+LDFLAGS := $(foreach lib_dir,${lib_dirs},-L${lib_dir} -Wl,-rpath,${lib_dir}) -pthread
+
+all : install.quickfix.${quickfix_version}
+
+info :
+	@echo "CPPFLAGS=${CPPFLAGS}"
+	@echo "CXXFLAGS=${CXXFLAGS}"
+	@echo "LDFLAGS=${LDFLAGS}"
 
 configure.quickfix.${quickfix_version} : | quickfix-${quickfix_version}-src
-#	( cd quickfix-${quickfix_version}-src && ../quickfix-${quickfix_version}-src/bootstrap && ../quickfix-${quickfix_version}-src/configure --prefix=${PREFIX} --libdir=${PREFIX}/lib64 --with-boost=${PREFIX}/boost-${boost_version}/include --with-tbb=${PREFIX}/tbb${tbb_version}/include CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}"  ) | tee $@~; exit $${PIPESTATUS[0]}
-	( cd quickfix-${quickfix_version}-src && ../quickfix-${quickfix_version}-src/bootstrap && ../quickfix-${quickfix_version}-src/configure --prefix=${PREFIX} --libdir=${PREFIX}/lib64 CPPFLAGS="${CPPFLAGS}" CXXFLAGS="${CXXFLAGS}" ) | tee $@~; exit $${PIPESTATUS[0]}
+	( cd quickfix-${quickfix_version}-src && ./bootstrap && ./configure --prefix=${PREFIX} --libdir=${PREFIX}/lib64 --with-mysql-config=true --without-mysql --with-boost=${prefix}/boost-${boost_version}/include --with-tbb=${prefix}/tbb${tbb_version}/include CPPFLAGS="${CPPFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${LDFLAGS}" ) | tee $@~; exit $${PIPESTATUS[0]}
 	mv $@~ $@
 
 build.quickfix.${quickfix_version} : configure.quickfix.${quickfix_version}
-#	( cd quickfix-${quickfix_version}-src && ${MAKE} CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" ) | tee $@~; exit $${PIPESTATUS[0]}
 	( cd quickfix-${quickfix_version}-src && ${MAKE} ) | tee $@~; exit $${PIPESTATUS[0]}
 	mv $@~ $@
 
-# quickfix-${quickfix_version}-obj :
-# 	mkdir $@
+install.quickfix.${quickfix_version} : build.quickfix.${quickfix_version}
+	( cd quickfix-${quickfix_version}-src && ${MAKE} install ) | tee $@~; exit $${PIPESTATUS[0]}
+	mv $@~ $@
 
 quickfix-${quickfix_version}-src : ${DOWNLOAD_DIR}/quickfix-${quickfix_version}.tar.gz
 	tar xf $<
@@ -42,4 +50,6 @@ ${DOWNLOAD_DIR}/quickfix-${quickfix_version}.tar.gz : | ${DOWNLOAD_DIR}
 download : ${DOWNLOAD_DIR}/quickfix-${quickfix_version}.tar.gz
 
 clean :
-	rm -rf *.quickfix.${quickfix_version} quickfix-${quickfix_version}-src
+	rm -rf *.quickfix.${quickfix_version} quickfix-${quickfix_version}-src ${PREFIX}
+
+.PHONY: all clean install download
