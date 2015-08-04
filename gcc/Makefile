@@ -71,11 +71,6 @@ downloads := $(foreach app,gcc make,${DOWNLOAD_DIR}/${app}-${${app}_version}.tar
 
 # TODO: 32/64 bit mode switch
 
-suffix.gcc.4.8.3 := 48
-suffix.gcc.4.9.2 := 49
-suffix.gcc.5.1.0 := 51
-suffix.gcc.5.2.0 := 52
-
 build_target.gcc.5.1.0 := profiledbootstrap
 build_target.gcc.5.2.0 := profiledbootstrap
 build_target.gcc := ${build_target.gcc.${gcc_version}}
@@ -88,12 +83,12 @@ redhat_major := $(word 1,$(subst ., ,${redhat_version}))
 # $(info ${redhat_version})
 # $(info ${redhat_major})
 
-conf.gcc.4.8.3 := --program-suffix=${suffix.gcc.${gcc_version}} --disable-libunwind-exceptions --with-system-zlib --enable-__cxa_atexit --enable-checking=release --disable-multilib $(patsubst %,--with-%-include=${PREFIX}/include,${libs}) $(patsubst %,--with-%-lib=${PREFIX}/lib64,${libs}) --enable-languages=c,c++,fortran,lto --enable-plugin --enable-initfini-array --enable-gold=default --enable-libstdcxx-time --enable-linker-build-id --with-linker-hash-style=gnu --disable-libgcj
-conf.gcc.4.9.2 := --program-suffix=${suffix.gcc.${gcc_version}} --disable-libunwind-exceptions --with-system-zlib --enable-__cxa_atexit --enable-checking=release --disable-multiarch --disable-multilib $(patsubst %,--with-%-include=${PREFIX}/include,${libs}) $(patsubst %,--with-%-lib=${PREFIX}/lib64,${libs}) --enable-languages=c,c++,fortran,lto --enable-plugin --enable-initfini-array --enable-gold=default --enable-libstdcxx-time --enable-linker-build-id --with-linker-hash-style=gnu --disable-libgcj
+conf.gcc.4.8.3 := --disable-libunwind-exceptions --with-system-zlib --enable-__cxa_atexit --enable-checking=release --disable-multilib $(patsubst %,--with-%-include=${PREFIX}/include,${libs}) $(patsubst %,--with-%-lib=${PREFIX}/lib64,${libs}) --enable-languages=c,c++,fortran,lto --enable-plugin --enable-initfini-array --enable-gold=default --enable-libstdcxx-time --enable-linker-build-id --with-linker-hash-style=gnu --disable-libgcj
+conf.gcc.4.9.2 := --disable-libunwind-exceptions --with-system-zlib --enable-__cxa_atexit --enable-checking=release --disable-multiarch --disable-multilib $(patsubst %,--with-%-include=${PREFIX}/include,${libs}) $(patsubst %,--with-%-lib=${PREFIX}/lib64,${libs}) --enable-languages=c,c++,fortran,lto --enable-plugin --enable-initfini-array --enable-gold=default --enable-libstdcxx-time --enable-linker-build-id --with-linker-hash-style=gnu --disable-libgcj
 
 conf.gcc.5.1.0.redhat.5 := --disable-gnu-unique-object
 conf.gcc.5.1.0.redhat := $(or ${conf.gcc.5.1.0.redhat.${redhat_major}},--enable-linker-build-id --enable-gnu-unique-object --with-build-config=bootstrap-lto)
-conf.gcc.5.1.0 := --program-suffix=${suffix.gcc.${gcc_version}} --disable-libunwind-exceptions --with-system-zlib --enable-__cxa_atexit --enable-shared --enable-threads=posix --enable-checking=release --disable-multiarch --disable-multilib $(patsubst %,--with-%-include=${PREFIX}/include,${libs}) $(patsubst %,--with-%-lib=${PREFIX}/lib64,${libs}) --enable-languages=c,c++,fortran,lto --enable-plugin --enable-initfini-array --enable-gold=default --enable-libstdcxx-time --with-linker-hash-style=gnu --disable-libgcj ${conf.gcc.5.1.0.redhat}
+conf.gcc.5.1.0 := --disable-libunwind-exceptions --with-system-zlib --enable-__cxa_atexit --enable-shared --enable-threads=posix --enable-checking=release --disable-multiarch --disable-multilib $(patsubst %,--with-%-include=${PREFIX}/include,${libs}) $(patsubst %,--with-%-lib=${PREFIX}/lib64,${libs}) --enable-languages=c,c++,fortran,lto --enable-plugin --enable-initfini-array --enable-gold=default --enable-libstdcxx-time --with-linker-hash-style=gnu --disable-libgcj ${conf.gcc.5.1.0.redhat}
 
 conf.gcc.5.2.0 := ${conf.gcc.5.1.0}
 
@@ -109,7 +104,7 @@ stock_gcc_version := $(shell PATH=${PATH} gcc -dumpversion)
 
 all : install
 
-install : install.wrappers install.make
+install : install.gcc.spec install.make
 
 dbg :
 	@echo "PATH=$$PATH"
@@ -119,7 +114,7 @@ dbg :
 # build new make with the new gcc
 configure.make build.make install.make : PATH := ${PREFIX}/bin:${PATH}
 
-configure.make : install.wrappers | make-${make_version}-src make-${make_version}-obj
+configure.make : install.gcc.spec | make-${make_version}-src make-${make_version}-obj
 	( cd make-${make_version}-obj && ../make-${make_version}-src/configure --prefix=${PREFIX} --libdir=${PREFIX}/lib64 ) | tee $@~; exit $${PIPESTATUS[0]}
 	mv $@~ $@
 
@@ -148,21 +143,15 @@ configure.binutils : install.isl install.gmp install.mpfr install.mpc | binutils
 	mv $@~ $@
 
 configure.gcc build.gcc install.gcc : PATH := ${PREFIX}/bin:${PATH}
-
 configure.gcc : ${libs:%=install.%} | gcc-${gcc_version}-obj gcc-${gcc_version}-src
 	( cd gcc-${gcc_version}-obj && ../gcc-${gcc_version}-src/configure --prefix=${PREFIX} ${conf.gcc.${gcc_version}} ) | tee $@~; exit $${PIPESTATUS[0]}
 	mv $@~ $@
 
-# make gcc wrappers for:
-#   c++
-#   g++
-#   gcc
-#   gfortran
-install.wrappers : install.gcc
-	cd ${PREFIX}/bin && rm -f gcc g++ c++ gfortran
-	sed -e 's#PREFIX#${PREFIX}#g' -e 's#SUFFIX#${suffix.gcc.${gcc_version}}#g' gcc-wrapper.sh > ${PREFIX}/bin/gcc
-	chmod +x ${PREFIX}/bin/gcc
-	cd ${PREFIX}/bin && ln gcc g++ && ln gcc c++ && ln gcc gfortran
+# This target makes gcc embed RUNPATH into the executables and shared libraries built with this
+# toolchain. So that tweaking LD_LIBRARY_PATH is unnecessary.
+install.gcc.spec : PATH := ${PREFIX}/bin:${PATH}
+install.gcc.spec : install.gcc
+	g++ -dumpspecs | awk '/^\*link:/ { print; getline; print "-rpath=${PREFIX}/lib64", $$0; next } { print }' > $$(dirname $$(g++ -print-libgcc-file-name))/specs
 	touch $@
 
 ${DOWNLOAD_DIR} :
@@ -181,18 +170,6 @@ binutils-${binutils_version}-src : ${DOWNLOAD_DIR}/binutils-${binutils_version}.
 	cd binutils-${binutils_version} && patch --backup -p1 < ../gold-ld_run_path.patch
 	mv binutils-${binutils_version} $@
 	touch $@
-
-# gcc-${gcc_version}-src/binutils : | binutils-${binutils_version}-src gcc-${gcc_version}-src
-# 	cd ${@D} && ln -s ../binutils-${binutils_version}-src ${@F}
-
-# ${DOWNLOAD_DIR}/make-% : | ${DOWNLOAD_DIR}
-# 	curl --output $@ ftp://ftp.gnu.org/gnu/make/${@F}
-
-# Versions after 20120929 require gettext-0.18, which is not found in RHEL/CentOS 6.4.
-make-3.82-src :
-	cvs -z3 -d:pserver:anonymous@cvs.savannah.gnu.org:/sources/make co -D 20120929 make
-	autoreconf -i make
-	mv make $@
 
 ${DOWNLOAD_DIR}/make-%.tar.bz2 : | ${DOWNLOAD_DIR}
 	curl --output $@ http://ftp.gnu.org/gnu/make/${@F}
