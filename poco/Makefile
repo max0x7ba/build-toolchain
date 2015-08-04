@@ -37,7 +37,6 @@ poco-${poco_version}-src/build/config/Linux2 : make-config.m4 | poco-${poco_vers
 
 poco-${poco_version}-src : ${DOWNLOAD_DIR}/poco-${poco_version}.tar.gz
 	tar xf $<
-#	sed -i.original -e 's%^\(CXXFLAGS[[:space:]]*=.*\)$$%\1 ${CXXFLAGS}%' -e 's%^\(LINKFLAGS[[:space:]]*=.*\)$$%\1 ${LDFLAGS}%' -e 's%^\(SHAREDOPT_LINK[[:space:]]*=.*\)$$%\1 ${LDFLAGS}%' poco-${poco_version}/build/config/Linux
 	sed -i.original -e 's%(INSTALLDIR)/lib%(INSTALLDIR)/lib64%g' poco-${poco_version}/Makefile
 	mv poco-${poco_version} $@
 
