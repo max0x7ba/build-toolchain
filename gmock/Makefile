@@ -11,7 +11,7 @@ PREFIX := ${prefix}/gmock-${gmock_version}
 
 CPPFLAGS := -fmessage-length=0
 CXXFLAGS := -std=gnu++14 -pthread
-LDFLAGS := -pthread
+LDFLAGS := -pthread -Wl,-rpath,${PREFIX}/lib64
 
 all : install.gmock.${gmock_version}
 
