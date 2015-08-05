@@ -3,20 +3,19 @@ JOBS := $(shell getconf _NPROCESSORS_ONLN)
 
 DOWNLOAD_DIR := ~/Downloads
 DOWNLOAD_DIR := $(shell echo ${DOWNLOAD_DIR})
-
 prefix := $(shell cat ../PREFIX)
+export PATH := ${prefix}/bin:${PATH}
 
 tbb_version := 43_20150611oss
 PREFIX := ${prefix}/tbb${tbb_version}
 
-export PATH := ${prefix}/bin:${PATH}
-export CXX := ${prefix}/bin/g++
-export CC := ${prefix}/bin/gcc
+CXXFLAGS := -std=gnu++14 -pthread -fmessage-length=0 -Wno-deprecated-declarations -D_TBB_CPP0X
+LDFLAGS := -pthread -Wl,-rpath,${PREFIX}/lib64 -fmessage-length=0
 
 all : install.tbb.${tbb_version}
 
 build.tbb.${tbb_version} : | tbb${tbb_version}-src
-	${MAKE} -C tbb${tbb_version}-src -j${JOBS} CPPFLAGS='-std=gnu++14 -pthread' CFLAGS='-pthread' LDFLAGS='-pthread'
+	${MAKE} -C tbb${tbb_version}-src -j${JOBS} CXXFLAGS='${CXXFLAGS}' LDFLAGS='${LDFLAGS}'
 	touch $@
 
 ${PREFIX}/lib64 ${PREFIX}/include : build.tbb.${tbb_version} | ${PREFIX}
