@@ -1,0 +1,35 @@
+diff -urw gmock-1.7.0/gtest/Makefile.in gmock-1.7.0-src/gtest/Makefile.in
+--- gmock-1.7.0/gtest/Makefile.in	2013-09-19 00:15:15.000000000 +0000
++++ gmock-1.7.0/gtest/Makefile.in	2015-08-05 10:26:26.000000000 +0000
+@@ -1349,11 +1349,11 @@
+
+ install-exec-local:
+ 	echo "'make install' is dangerous and not supported. Instead, see README for how to integrate Google Test into your build system."
+-	false
++#	false
+
+ install-data-local:
+ 	echo "'make install' is dangerous and not supported. Instead, see README for how to integrate Google Test into your build system."
+-	false
++#	false
+
+ # Tell versions [3.59,3.63) of GNU make to not export all variables.
+ # Otherwise a system limit (for SysV at least) may be exceeded.
+
+diff -urw gmock-1.7.0/Makefile.in gmock-1.7.0-src/Makefile.in
+--- gmock-1.7.0/Makefile.in	2013-09-19 00:15:19.000000000 +0000
++++ gmock-1.7.0/Makefile.in	2015-08-05 10:26:08.000000000 +0000
+@@ -1346,11 +1346,11 @@
+
+ install-exec-local:
+ 	echo "'make install' is dangerous and not supported. Instead, see README for how to integrate Google Mock into your build system."
+-	false
++#	false
+
+ install-data-local:
+ 	echo "'make install' is dangerous and not supported. Instead, see README for how to integrate Google Mock into your build system."
+-	false
++#	false
+
+ # Tell versions [3.59,3.63) of GNU make to not export all variables.
+ # Otherwise a system limit (for SysV at least) may be exceeded.
