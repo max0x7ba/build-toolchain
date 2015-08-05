@@ -1,21 +1,14 @@
 PREFIX := $(shell cat PREFIX)
 
-projects := gcc boost tbb poco quickfix zeromq gmock
-
-gcc.dir := gcc
-boost.dir := boost
-tbb.dir := tbb
-poco.dir := poco
-quickfix.dir = quickfix
-zeromq.dir = zeromq
-gmock.dir = gmock
+projects := gcc boost tbb poco quickfix zeromq gmock jemalloc
 
 all : build
 build : $(addprefix build.,${projects})
 clean : $(addprefix clean.,${projects})
 download : $(addprefix download.,${projects})
 
-$(addprefix build., boost tbb poco quickfix zeromq gmock) : build.gcc
+# Every build depends on build.gcc.
+$(addprefix build.,$(filter-out gcc,${projects})) : build.gcc
 build.quickfix : build.tbb build.boost
 
 ${PREFIX} :
@@ -28,10 +21,10 @@ clean :
 	rm -rf ${PREFIX}/*
 
 clean.% :
-	${MAKE} -C ${$*.dir} clean
+	${MAKE} -C $* clean
 
 download.% :
-	${MAKE} -C ${$*.dir} download
+	${MAKE} -C $* download
 
 prerequisite :
 	yum install bison flex texinfo {elfutils,libunwind,gettext,curl,sqlite,openssl,readline,bzip2,zlib,libpng}-devel
