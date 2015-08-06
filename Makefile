@@ -10,6 +10,7 @@ download : $(addprefix download.,${projects})
 # Every build depends on build.gcc.
 $(addprefix build.,$(filter-out gcc,${projects})) : build.gcc
 build.quickfix : build.tbb build.boost
+build.libevent : build.openssl
 
 ${PREFIX} :
 	mkdir -p $@
