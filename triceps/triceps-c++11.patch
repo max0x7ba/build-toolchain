@@ -1,0 +1,195 @@
+diff -wur triceps-original/cpp/Makefile triceps-2.0.1-src/cpp/Makefile
+--- triceps-original/cpp/Makefile	2013-02-02 13:16:36.000000000 +0000
++++ triceps-2.0.1-src/cpp/Makefile	2015-08-06 15:33:12.966822022 +0100
+@@ -37,7 +37,7 @@
+
+ $(BUILDDIR)/$(SHLIB): $(OBJECTS)
+ 	rm -f $@
+-	$(CXX) -shared -o $@ $^
++	$(CXX) -shared ${LDFLAGS_EXTRA} -o $@ $^
+
+ $(BUILDDIR)/$(ARLIB): $(OBJECTS)
+ 	rm -f $@
+diff -wur triceps-original/cpp/Makefile.inc triceps-2.0.1-src/cpp/Makefile.inc
+--- triceps-original/cpp/Makefile.inc	2013-07-19 13:57:34.000000000 +0100
++++ triceps-2.0.1-src/cpp/Makefile.inc	2015-08-06 15:30:08.157072177 +0100
+@@ -1,34 +1,10 @@
+
+ # The base settings that are always needed.
+ TRICEPS_CONF =
+-TRICEPS_XLIB = -lpthread -lrt
++TRICEPS_XLIB = -pthread -lrt
+
+ # configuration settings
+
+-# The NSPR library is a pain. In some distributions it's using the name,
+-# including the include directory name "nspr4". In some it's just "nspr".
+-# Hopefully, the configuration will be auto-found.
+-# You can override it by setting the values explicitly instead.
+-# If TRICEPS_NSPR is not set, NSPR won't be used. Instead an alternative
+-# portable implementation of atomic integers that uses a mutex will be used.
+-#
+-# The code below tries to do its best to find the NSPR library in the
+-# places I know of, or otherwise makes the code do without it.
+-# If it doesn't work weel on your system, you can always comment out
+-# this code and override it manually.
+-NSPR_LIBS = $(shell pkg-config --libs nspr 2>/dev/null)
+-ifneq ($(NSPR_LIBS),)
+-	# use the NSPR4 library, auto-found
+-	TRICEPS_CONF += -DTRICEPS_NSPR $(shell pkg-config --cflags nspr)
+-	TRICEPS_XLIB += $(NSPR_LIBS)
+-else
+-	NSPR_INC = $(shell ls -d /usr/include/nspr4 2>/dev/null)
+-	ifneq ($(NSPR_INC),)
+-		TRICEPS_CONF += -DTRICEPS_NSPR -I/usr/include/nspr4
+-		TRICEPS_XLIB += -lnspr4
+-	endif
+-endif
+-
+ # use a different namespace (instead of Triceps)
+ # TRICEPS_CONF += -DTRICEPS_NS=name
+
+@@ -52,10 +28,10 @@
+ OBJEXT := .o
+ BINEXT :=
+ BUILDDIR := build
+-CPPFLAGS := -I.. $(TRICEPS_CONF)
+-CFLAGS := -g -fPIC -pthread -rdynamic $(CPPFLAGS) $(CFLAGS_WARNINGS) $(TRICEPS_CONF)
+-CXXFLAGS := $(CFLAGS)
+-LDFLAGS := -L../build -l$(LIBRARY) $(TRICEPS_XLIB)
++CPPFLAGS := -I.. $(TRICEPS_CONF) $(CPPFLAGS_EXTRA)
++CFLAGS := -g -fPIC -pthread -rdynamic $(CPPFLAGS) $(CFLAGS_WARNINGS) $(TRICEPS_CONF) $(CFLAGS_EXTRA)
++CXXFLAGS := $(CFLAGS) $(CXXFLAGS_EXTRA)
++LDFLAGS := -L../build -l$(LIBRARY) $(TRICEPS_XLIB) $(LDFLAGS_EXTRA)
+ TESTLDFLAGS := $(LDFLAGS) -L../utest/build -Wl,-rpath='$$ORIGIN/../../../build' \
+ 	-ltriceps_utest -Wl,-rpath='$$ORIGIN/../../../utest/build'
+
+diff -wur triceps-original/cpp/mem/Atomic.h triceps-2.0.1-src/cpp/mem/Atomic.h
+--- triceps-original/cpp/mem/Atomic.h	2014-07-27 20:50:12.000000000 +0100
++++ triceps-2.0.1-src/cpp/mem/Atomic.h	2015-08-06 15:30:08.158072186 +0100
+@@ -11,69 +11,21 @@
+ #define __Triceps_Atomic_h__
+
+ #include <pw/ptwrap.h>
+-#ifdef TRICEPS_NSPR // {
+-#  include <pratom.h>
+-#endif // } TRICEPS_NSPR
+
+-namespace TRICEPS_NS {
+-
+-#ifdef TRICEPS_NSPR // {
+-
+-// the implementation around the NSPR4 atomics
+-class AtomicInt
+-{
+-public:
+-	AtomicInt(); // value defaults to 0
+-	AtomicInt(int val);
+-
+-	// set the value
+-	void set(int val)
+-	{
+-		PR_ATOMIC_SET(&val_, (PRInt32)val);
+-	}
+-
+-	// get the value
+-	int get() const
+-	{
+-		return (int)val_;
+-	}
++#include <atomic>
+
+-	// increase the value, return the result
+-	int inc()
+-	{
+-		return (int)PR_ATOMIC_INCREMENT(&val_);
+-	}
+-
+-	// derease the value, return the result
+-	int dec()
+-	{
+-		return (int)PR_ATOMIC_DECREMENT(&val_);
+-	}
+-
+-protected:
+-	PRInt32 val_;
+-
+-private:
+-	void operator=(const AtomicInt &);
+-	AtomicInt(const AtomicInt &);
+-};
+-
+-#else  // } { TRICEPS_NSPR
++namespace TRICEPS_NS {
+
+-// the baseline implementation when nothing better is available
+-// (it's actually not that bad, I've measured it only about 2.5-3 times slower)
+ class AtomicInt
+ {
+ public:
+-	AtomicInt(); // value defaults to 0
++	AtomicInt();
+ 	AtomicInt(int val);
+
+ 	// set the value
+ 	void set(int val)
+ 	{
+-		mt_mutex_.lock(); // for perversive architectures with software cache coherence
+ 		val_ = val;
+-		mt_mutex_.unlock();
+ 	}
+
+ 	// get the value
+@@ -85,32 +37,23 @@
+ 	// increase the value, return the result
+ 	int inc()
+ 	{
+-		mt_mutex_.lock();
+-		int v = ++val_;
+-		mt_mutex_.unlock();
+-		return v;
++		return ++val_;
+ 	}
+
+ 	// derease the value, return the result
+ 	int dec()
+ 	{
+-		mt_mutex_.lock();
+-		int v = --val_;
+-		mt_mutex_.unlock();
+-		return v;
++		return --val_;
+ 	}
+
+ protected:
+-	pw::pmutex mt_mutex_;
+-	int val_;
++    std::atomic<int> val_;
+
+ private:
+-	void operator=(const AtomicInt &);
+-	AtomicInt(const AtomicInt &);
++	AtomicInt & operator=(const AtomicInt &) = delete;
++	AtomicInt(const AtomicInt &) = delete;
+ };
+
+-#endif // } TRICEPS_NSPR
+-
+-}; // TRICEPS_NS
++} // TRICEPS_NS
+
+ #endif // __Triceps_Atomic_h__
+diff -wur triceps-original/perl/Triceps/Makefile.PL triceps-2.0.1-src/perl/Triceps/Makefile.PL
+--- triceps-original/perl/Triceps/Makefile.PL	2013-04-27 23:55:19.000000000 +0100
++++ triceps-2.0.1-src/perl/Triceps/Makefile.PL	2015-08-06 15:30:08.158072186 +0100
+@@ -40,8 +40,8 @@
+ 	# Un-comment this if you add C files to link with later:
+     OBJECT            => '$(O_FILES)', # link all the C files too
+     MYEXTLIB          => '../../cpp/build/lib' . $TRICEPS_LIBRARY . '$(LIB_EXT)', # embed the static version into Perl shared module
+-	CC                => 'g++ -Wno-unused-variable',
+-	LD                => 'g++',
++	CC                => 'g++ -Wno-unused-variable ${CPPFLAGS_EXTRA} ${CXXFLAGS_EXTRA}',
++	LD                => 'g++ ${LDFLAGS_EXTRA}',
+ );
+
+ sub MY::postamble {

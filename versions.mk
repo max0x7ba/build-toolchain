@@ -10,3 +10,4 @@ openssl_version := 1.0.2d
 libevent_version := 2.0.22
 ctemplate_version := 2.3
 rapidxml_version := 1.13
+triceps_version := 2.0.1
