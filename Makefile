@@ -15,7 +15,7 @@ ${PREFIX} :
 	mkdir -p $@
 
 build.% : | ${PREFIX}
-	${MAKE} -C ${$*.dir}
+	${MAKE} -C $*
 
 clean :
 	rm -rf ${PREFIX}/*
