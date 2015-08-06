@@ -1,6 +1,6 @@
 PREFIX := $(shell cat PREFIX)
 
-projects := gcc boost tbb poco quickfix zeromq gmock jemalloc websocketpp libevent openssl
+projects := gcc boost tbb poco quickfix zeromq gmock jemalloc websocketpp libevent openssl ctemplate
 
 all : build
 build : $(addprefix build.,${projects})
