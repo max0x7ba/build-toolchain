@@ -1,0 +1,64 @@
+Only in luabind-0.9.1-src: bin
+diff -urw luabind-0.9.1-original/Jamroot luabind-0.9.1-src/Jamroot
+--- luabind-0.9.1-original/Jamroot	2010-08-31 13:24:52.000000000 +0000
++++ luabind-0.9.1-src/Jamroot	2015-08-11 14:25:48.000000000 +0000
+@@ -64,7 +64,7 @@
+         $(LUA_PATH) $(HOME)/Library/Frameworks /Library/Frameworks /usr /usr/local /opt/local /opt ;
+ 
+     local possible-suffixes =
+-        include/lua5.1 include/lua51 include/lua include ;
++        include/lua5.1 include/lua51 include/lua include include/luajit-2.0 ;
+ 
+     local includes = [ GLOB $(possible-prefixes)/$(possible-suffixes) : lua.h ] ;
+ 
+@@ -81,9 +81,9 @@
+         prefix = $(prefix:D) ;
+     }
+ 
+-    local lib = $(prefix)/lib ;
++    local lib = $(prefix)/lib64 ;
+ 
+-    local names = liblua5.1 liblua51 liblua ;
++    local names = liblua5.1 liblua51 liblua libluajit-5.1 ;
+     local extensions = .a .so ;
+ 
+     library = [ GLOB $(lib)/lua51 $(lib)/lua5.1 $(lib)/lua $(lib) :
+diff -urw luabind-0.9.1-original/luabind/object.hpp luabind-0.9.1-src/luabind/object.hpp
+--- luabind-0.9.1-original/luabind/object.hpp	2010-08-31 13:24:52.000000000 +0000
++++ luabind-0.9.1-src/luabind/object.hpp	2015-08-11 14:29:19.000000000 +0000
+@@ -536,28 +536,6 @@
+       handle m_key;
+   };
+ 
+-// Needed because of some strange ADL issues.
+-
+-#define LUABIND_OPERATOR_ADL_WKND(op) \
+-  inline bool operator op( \
+-      basic_iterator<basic_access> const& x \
+-    , basic_iterator<basic_access> const& y) \
+-  { \
+-      return boost::operator op(x, y); \
+-  } \
+- \
+-  inline bool operator op( \
+-      basic_iterator<raw_access> const& x \
+-    , basic_iterator<raw_access> const& y) \
+-  { \
+-      return boost::operator op(x, y); \
+-  }
+-
+-  LUABIND_OPERATOR_ADL_WKND(==)
+-  LUABIND_OPERATOR_ADL_WKND(!=)
+-
+-#undef LUABIND_OPERATOR_ADL_WKND
+- 
+ } // namespace detail
+ 
+ namespace adl
+@@ -1407,4 +1385,3 @@
+ } // namespace luabind
+ 
+ #endif // LUABIND_OBJECT_050419_HPP
+-
+Only in luabind-0.9.1-src/luabind: object.hpp~
+Only in luabind-0.9.1-src: stage

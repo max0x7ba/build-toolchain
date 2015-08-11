@@ -1,20 +1,13 @@
-SHELL := /bin/bash
-JOBS := $(shell getconf _NPROCESSORS_ONLN)
+include ../versions.mk
 
-DOWNLOAD_DIR := ~/Downloads
-DOWNLOAD_DIR := $(shell echo ${DOWNLOAD_DIR})
-
-BOOST_VERSION := 1_58_0
-prefix := $(shell cat ../PREFIX)
-export PATH := ${prefix}/bin:${PATH}
-PREFIX := ${prefix}/boost-$(subst _,.,${BOOST_VERSION})
+BOOST_VERSION := $(subst .,_,${boost_version})
+PREFIX := ${prefix}/boost-${boost_version}
 
 all : install.boost.${BOOST_VERSION}
 
 patch.boost.1_55_0 = patch -p0 -b < date_time_ticket_9489.patch
 
 configure.boost.${BOOST_VERSION} : | boost_${BOOST_VERSION}
-#	cd boost_${BOOST_VERSION} && ./bootstrap.sh --with-python=ot-python --prefix=${PREFIX} --libdir=${PREFIX}/lib64
 	cd boost_${BOOST_VERSION} && ./bootstrap.sh --prefix=${PREFIX} --libdir=${PREFIX}/lib64
 	touch $@
 
