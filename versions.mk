@@ -19,3 +19,4 @@ luajit_version := 2.0.4
 luabind_version := 0.9.1
 lua_version := 5.3.1
 curl_version := 7.43.0
+gdb_version := 7.9.1
