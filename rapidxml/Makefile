@@ -7,6 +7,7 @@ all : install.rapidxml.${rapidxml_version}
 ${PREFIX} : ${DOWNLOAD_DIR}/rapidxml-${rapidxml_version}.zip
 	unzip -d ${@D} $<
 	stat $@ > /dev/null
+	touch $@
 
 install.rapidxml.${rapidxml_version} : ${PREFIX}
 
