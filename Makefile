@@ -1,6 +1,6 @@
 PREFIX := $(shell cat PREFIX)
 
-projects := gcc boost tbb poco quickfix zeromq gmock jemalloc websocketpp libevent openssl ctemplate rapidxml triceps libxml2 libxslt ta-lib luajit luabind
+projects := gcc boost tbb poco quickfix zeromq gmock jemalloc websocketpp libevent openssl ctemplate rapidxml triceps libxml2 libxslt ta-lib luajit luabind curl
 
 all : build
 build : $(addprefix build.,${projects})
@@ -14,6 +14,7 @@ build.quickfix : build.tbb build.boost
 build.libevent : build.openssl
 build.libxslt : build.libxml2
 build.luabind : build.boost build.luajit
+build.curl : build.openssl
 
 ${PREFIX} :
 	mkdir -p $@
