@@ -11,3 +11,5 @@ libevent_version := 2.0.22
 ctemplate_version := 2.3
 rapidxml_version := 1.13
 triceps_version := 2.0.1
+libxml2_version := 2.9.2
+libxslt_version := 1.1.28
