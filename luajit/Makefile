@@ -9,12 +9,14 @@ LDFLAGS := -pthread -Wl,-rpath,${PREFIX}/lib64
 
 all : install.luajit.${luajit_version}
 
+make_cmd = ${MAKE} -C luajit-${luajit_version}-src Q= E=@: PREFIX="${PREFIX}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${LDFLAGS}" MULTILIB=lib64 BUILDMODE=dynamic LDCONFIG=true
+
 build.luajit.${luajit_version} : | luajit-${luajit_version}-src
-	${MAKE} -C luajit-${luajit_version}-src Q= E=@: PREFIX="${PREFIX}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${LDFLAGS}" | tee $@~; exit $${PIPESTATUS[0]}
+	${make_cmd} | tee $@~; exit $${PIPESTATUS[0]}
 	mv $@~ $@
 
 install.luajit.${luajit_version} : build.luajit.${luajit_version}
-	${MAKE} -C luajit-${luajit_version}-src install Q= E=@: PREFIX="${PREFIX}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${LDFLAGS}" MULTILIB=lib64 | tee $@~; exit $${PIPESTATUS[0]}
+	${make_cmd} install | tee $@~; exit $${PIPESTATUS[0]}
 	mv $@~ $@
 
 luajit-${luajit_version}-src : ${DOWNLOAD_DIR}/luajit-${luajit_version}.tar.gz
