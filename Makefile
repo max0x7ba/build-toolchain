@@ -15,6 +15,7 @@ build.libevent : build.openssl
 build.libxslt : build.libxml2
 build.luabind : build.boost build.luajit
 build.curl : build.openssl
+build.git : build.openssl build.curl
 
 ${PREFIX} :
 	mkdir -p $@
