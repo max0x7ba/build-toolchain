@@ -33,6 +33,6 @@ download.% :
 	${MAKE} -C $* download
 
 prerequisite :
-	yum install bison flex texinfo {elfutils,libunwind,gettext,curl,sqlite,openssl,readline,bzip2,zlib,libpng}-devel
+	yum install bison flex texinfo {elfutils,libunwind,gettext,curl,sqlite,openssl,readline,bzip2,zlib,libpng,expat}-devel
 
 .PHONY: all build clean build.% clean.% download download.% prerequisite
