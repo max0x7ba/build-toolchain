@@ -9,7 +9,7 @@ export PATH := ${prefix}/bin:${PATH}
 unexport LD_LIBRARY_PATH
 unexport LD_RUN_PATH
 
-boost_version := 1.58.0
+boost_version := 1.59.0
 openssl_version := 1.0.2d
 libevent_version := 2.0.22
 ctemplate_version := 2.3
