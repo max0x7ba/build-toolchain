@@ -4,7 +4,10 @@ JOBS := $(shell getconf _NPROCESSORS_ONLN)
 DOWNLOAD_DIR := ~/Downloads
 DOWNLOAD_DIR := $(shell echo ${DOWNLOAD_DIR})
 prefix := $(shell cat ../PREFIX)
+
 export PATH := ${prefix}/bin:${PATH}
+unexport LD_LIBRARY_PATH
+unexport LD_RUN_PATH
 
 boost_version := 1.58.0
 openssl_version := 1.0.2d
@@ -21,3 +24,4 @@ lua_version := 5.3.1
 curl_version := 7.43.0
 gdb_version := 7.9.1
 git_version := 2.5.0
+python_version := 2.7.10

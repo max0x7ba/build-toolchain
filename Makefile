@@ -1,6 +1,6 @@
 PREFIX := $(shell cat PREFIX)
 
-projects := gcc boost tbb poco quickfix zeromq gmock jemalloc websocketpp libevent openssl ctemplate rapidxml triceps libxml2 libxslt ta-lib luajit luabind curl gdb git
+projects := gcc boost tbb poco quickfix zeromq gmock jemalloc websocketpp libevent openssl ctemplate rapidxml triceps libxml2 libxslt ta-lib luajit luabind curl gdb git python
 
 all : build
 build : $(addprefix build.,${projects})
@@ -10,6 +10,8 @@ download : $(addprefix download.,${projects})
 # Every build depends on build.gcc.
 $(addprefix build.,$(filter-out gcc,${projects})) : build.gcc
 
+build.python : build.openssl
+build.boost : build.python
 build.quickfix : build.tbb build.boost
 build.libevent : build.openssl
 build.libxslt : build.libxml2
@@ -33,6 +35,6 @@ download.% :
 	${MAKE} -C $* download
 
 prerequisite :
-	yum install bison flex texinfo {elfutils,libunwind,gettext,curl,sqlite,openssl,readline,bzip2,zlib,libpng,expat}-devel
+	yum install bison flex texinfo {elfutils,libunwind,gettext,curl,sqlite,openssl,readline,bzip2,zlib,libpng,expat,openblas,atlas}-devel
 
 .PHONY: all build clean build.% clean.% download download.% prerequisite
