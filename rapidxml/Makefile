@@ -4,9 +4,13 @@ PREFIX := ${prefix}/rapidxml-${rapidxml_version}
 
 all : install.rapidxml.${rapidxml_version}
 
+patch-1.13 := cd ${PREFIX} && patch -p0 < ${CURDIR}/rapidxml-1.13.patch
+patch := $(or ${patch-${rapidxml_version}},;)
+
 ${PREFIX} : ${DOWNLOAD_DIR}/rapidxml-${rapidxml_version}.zip
 	unzip -d ${@D} $<
 	stat $@ > /dev/null
+	${patch}
 	touch $@
 
 install.rapidxml.${rapidxml_version} : ${PREFIX}
