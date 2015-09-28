@@ -93,6 +93,7 @@ expand.zip = unzip ${1}
 expand.tar.bz2 = tar xf ${1}
 expand.tar.xz = tar xf ${1}
 expand.tar.gz = tar xf ${1}
+expand.tgz = tar xf ${1}
 
 # ${1} - package, as in ${packages}
 # ${2} - archive suffix
@@ -116,10 +117,10 @@ download_pypi = $(call download_and_extract,${1},${2},http://pypi.python.org/pac
 # ${3} - url
 download_url = $(call download_and_extract,${1},${2},${3},$(shell basename "${3}"))
 
-.SECONDARY: %.tar.xz %.tar.gz %.tar.bz2 %.zip
+.SECONDARY: %.tar.xz %.tar.gz %.tar.bz2 %.zip %.tgz
 
 # Step 3.1.
-$(eval $(call download_url,python,tar.xz,http://www.python.org/ftp/python/${python_version}/${python.src}.tar.xz))
+$(eval $(call download_url,python,tgz,http://www.python.org/ftp/python/${python_version}/${python.src}.tgz))
 #$(eval $(call download_pypi,ipython,tar.gz))
 $(eval $(call download_pypi,pytz,tar.bz2))
 #$(eval $(call download_pypi,pandas,tar.gz))
