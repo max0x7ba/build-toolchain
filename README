@@ -20,9 +20,8 @@ Make sure that PATH is set to standard paths /usr/bin:/bin and LD_LIBRARY_PATH i
 Increment the number in file PREFIX. And then invoke:
 
 $ export PATH=/usr/bin:/bin
-$ unset LD_LIBRARY_PATH
 $ mkdir -p `cat PREFIX`
 $ sudo chown $USER `cat PREFIX`
 $ make clean
 $ make download
-$ make -j12
+$ make -j12 </dev/null

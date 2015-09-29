@@ -1,12 +1,5 @@
-SHELL := /bin/bash
-JOBS := $(shell getconf _NPROCESSORS_ONLN)
+include ../versions.mk
 
-DOWNLOAD_DIR := ~/Downloads
-DOWNLOAD_DIR := $(shell echo ${DOWNLOAD_DIR})
-prefix := $(shell cat ../PREFIX)
-export PATH := ${prefix}/bin:${PATH}
-
-tbb_version := 43_20150611oss
 PREFIX := ${prefix}/tbb${tbb_version}
 
 CXXFLAGS := -std=gnu++14 -pthread -fmessage-length=0 -Wno-deprecated-declarations -D_TBB_CPP0X

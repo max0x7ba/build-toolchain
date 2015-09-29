@@ -1,3 +1,5 @@
+unexport LD_LIBRARY_PATH
+unexport LD_RUN_PATH
 PREFIX := $(shell cat PREFIX)
 
 projects := gcc boost tbb poco quickfix zeromq gmock jemalloc websocketpp libevent openssl ctemplate rapidxml triceps libxml2 libxslt ta-lib luajit luabind curl gdb git python

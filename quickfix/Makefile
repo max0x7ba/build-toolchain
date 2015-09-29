@@ -1,18 +1,6 @@
-SHELL := /bin/bash
-JOBS := $(shell getconf _NPROCESSORS_ONLN)
+include ../versions.mk
 
-DOWNLOAD_DIR := ~/Downloads
-DOWNLOAD_DIR := $(shell echo ${DOWNLOAD_DIR})
-
-# TODO: make it global toolchain configuration.
-quickfix_version := 1.14.4
-boost_version := 1.58.0
-tbb_version := 43_20150611oss
-
-prefix := $(shell cat ../PREFIX)
 PREFIX := ${prefix}/quickfix-${quickfix_version}
-
-export PATH := ${prefix}/bin:${PATH}
 
 CPPFLAGS := -fmessage-length=0 -Wno-deprecated-declarations -pthread
 CXXFLAGS := -std=gnu++14
