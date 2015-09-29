@@ -25,5 +25,5 @@ curl_version := 7.43.0
 gdb_version := 7.9.1
 git_version := 2.5.0
 python_version := 2.7.10
-quickfix_version := 1.14.4
+quickfix_version := e5216dcd1f30a2741de6fe46207af18a091e39a8
 tbb_version := 43_20150611oss

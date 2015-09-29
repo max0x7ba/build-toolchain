@@ -28,11 +28,11 @@ install.quickfix.${quickfix_version} : build.quickfix.${quickfix_version}
 
 quickfix-${quickfix_version}-src : ${DOWNLOAD_DIR}/quickfix-${quickfix_version}.tar.gz
 	tar xf $<
-	sed -i.original -e 's/-std=c++0x/-std=gnu++14/g' quickfix-v.${quickfix_version}/configure.ac
-	mv quickfix-v.${quickfix_version} $@
+	sed -i.original -e 's/-std=c++0x/-std=gnu++14/g' quickfix-${quickfix_version}/configure.ac
+	mv quickfix-${quickfix_version} $@
 
 ${DOWNLOAD_DIR}/quickfix-${quickfix_version}.tar.gz : | ${DOWNLOAD_DIR}
-	wget -O $@~ https://github.com/quickfix/quickfix/archive/v.${quickfix_version}.tar.gz
+	wget -O $@~ https://github.com/quickfix/quickfix/archive/${quickfix_version}.tar.gz
 	mv $@{~,}
 
 download : ${DOWNLOAD_DIR}/quickfix-${quickfix_version}.tar.gz
