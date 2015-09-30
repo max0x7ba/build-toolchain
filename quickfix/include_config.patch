@@ -1,0 +1,11 @@
+--- ./quickfix-e5216dcd1f30a2741de6fe46207af18a091e39a8-src/src/C++/Utility.h	2015-09-30 08:07:31.731526833 +0000
++++ ./quickfix-e5216dcd1f30a2741de6fe46207af18a091e39a8-src/src/C++/Utility.h	2015-09-30 08:17:44.105748945 +0000
+@@ -22,6 +22,8 @@
+ #ifndef FIX_UTILITY_H
+ #define FIX_UTILITY_H
+
++#include "config.h"
++
+ #ifdef _MSC_VER
+ #pragma warning( disable : 4503 4355 4786 4290 )
+ #endif

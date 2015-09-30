@@ -16,6 +16,7 @@ info :
 
 configure.quickfix.${quickfix_version} : | quickfix-${quickfix_version}-src
 	( cd quickfix-${quickfix_version}-src && ./bootstrap && ./configure --prefix=${PREFIX} --libdir=${PREFIX}/lib64 --with-mysql-config=true --without-mysql --with-boost=${prefix}/boost-${boost_version}/include --with-tbb=${prefix}/tbb${tbb_version}/include --with-allocator=tbb CPPFLAGS="${CPPFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${LDFLAGS}" ) | tee $@~; exit $${PIPESTATUS[0]}
+	cd quickfix-${quickfix_version}-src && patch -p2 < ../include_config.patch && mv config.h src/C++
 	mv $@~ $@
 
 build.quickfix.${quickfix_version} : configure.quickfix.${quickfix_version}
@@ -38,7 +39,9 @@ ${DOWNLOAD_DIR}/quickfix-${quickfix_version}.tar.gz : | ${DOWNLOAD_DIR}
 
 download : ${DOWNLOAD_DIR}/quickfix-${quickfix_version}.tar.gz
 
+configure.quickfix : configure.quickfix.${quickfix_version}
+
 clean :
 	rm -rf *.quickfix.${quickfix_version} quickfix-${quickfix_version}-src ${PREFIX}
 
-.PHONY: all clean install download
+.PHONY: all clean install download configure.quickfix
