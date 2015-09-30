@@ -35,7 +35,7 @@ gdb-${gdb_version}-src : ${DOWNLOAD_DIR}/gdb-${gdb_version}.tar.gz
 	touch $@
 
 ${DOWNLOAD_DIR}/gdb-${gdb_version}.tar.gz : | ${DOWNLOAD_DIR}
-	wget -O $@~ http://ftp.gnu.org/gnu/gdb/gdb-7.9.1.tar.gz
+	wget -O $@~ http://ftp.gnu.org/gnu/gdb/gdb-${gdb_version}.tar.gz
 	mv $@{~,}
 
 download : ${DOWNLOAD_DIR}/gdb-${gdb_version}.tar.gz
