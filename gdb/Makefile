@@ -13,8 +13,10 @@ all : install.gdb.${gdb_version}
 libs := mpc mpfr gmp isl
 
 configure.gdb.${gdb_version} : | gdb-${gdb_version}-src gdb-${gdb_version}-obj
-	( cd gdb-${gdb_version}-obj && ../gdb-${gdb_version}-src/configure --prefix=${PREFIX} --libdir=${PREFIX}/lib64 $(patsubst %,--with-%-include=${PREFIX}/include,${libs}) $(patsubst %,--with-%-lib=${PREFIX}/lib64,${libs}) --disable-isl-version-check CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${LDFLAGS}" ) | tee $@~; exit $${PIPESTATUS[0]}
+	( cd gdb-${gdb_version}-obj && ../gdb-${gdb_version}-src/configure --prefix=${PREFIX} --libdir=${PREFIX}/lib64 $(patsubst %,--with-%-include=${PREFIX}/include,${libs}) $(patsubst %,--with-%-lib=${PREFIX}/lib64,${libs}) --with-python=${prefix}/python-${python_version}/bin/python --disable-isl-version-check CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${LDFLAGS}" ) | tee $@~; exit $${PIPESTATUS[0]}
 	mv $@~ $@
+
+configure.gdb : configure.gdb.${gdb_version}
 
 build.gdb.${gdb_version} : configure.gdb.${gdb_version}
 	${MAKE} -C gdb-${gdb_version}-obj | tee $@~; exit $${PIPESTATUS[0]}
@@ -41,4 +43,4 @@ download : ${DOWNLOAD_DIR}/gdb-${gdb_version}.tar.gz
 clean :
 	rm -rf *.gdb.${gdb_version} gdb-${gdb_version}-{src,obj} ${PREFIX}
 
-.PHONY: all clean download
+.PHONY: all clean download configure.gdb

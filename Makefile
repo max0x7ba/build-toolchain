@@ -20,6 +20,7 @@ build.libxslt : build.libxml2
 build.luabind : build.boost build.luajit
 build.curl : build.openssl
 build.git : build.openssl build.curl
+build.gdb : build.python
 
 ${PREFIX} :
 	mkdir -p $@

@@ -5,7 +5,7 @@ DOWNLOAD_DIR := ~/Downloads
 DOWNLOAD_DIR := $(shell echo ${DOWNLOAD_DIR})
 prefix := $(shell cat ../PREFIX)
 
-export PATH := ${prefix}/bin:${PATH}
+export PATH := ${prefix}/bin:/usr/local/bin:/usr/bin:/bin
 unexport LD_LIBRARY_PATH
 unexport LD_RUN_PATH
 
