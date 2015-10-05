@@ -30,8 +30,8 @@ ifneq (${BOOST_VERSION},trunk)
 boost_${BOOST_VERSION} : ${DOWNLOAD_DIR}/boost_${BOOST_VERSION}.tar.bz2
 	tar xjf $<
 	${patch.boost.${BOOST_VERSION}}
-	echo '#define BOOST_THREAD_DONT_PROVIDE_INTERRUPTIONS' >> boost_${BOOST_VERSION}/boost/config/user.hpp
-	echo '#define BOOST_LOG_NO_THREADS' >> boost_${BOOST_VERSION}/boost/config/user.hpp
+#	echo '#define BOOST_THREAD_DONT_PROVIDE_INTERRUPTIONS' >> boost_${BOOST_VERSION}/boost/config/user.hpp
+#	echo '#define BOOST_LOG_NO_THREADS' >> boost_${BOOST_VERSION}/boost/config/user.hpp
 	touch $@
 
 endif
