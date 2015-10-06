@@ -88,7 +88,7 @@ conf.gcc.4.9.2 := --disable-libunwind-exceptions --with-system-zlib --enable-__c
 
 conf.gcc.5.1.0.redhat.5 := --disable-gnu-unique-object
 conf.gcc.5.1.0.redhat := $(or ${conf.gcc.5.1.0.redhat.${redhat_major}},--enable-linker-build-id --enable-gnu-unique-object --with-build-config=bootstrap-lto)
-conf.gcc.5.1.0 := --disable-libunwind-exceptions --with-system-zlib --enable-__cxa_atexit --enable-shared --enable-threads=posix --enable-checking=release --disable-multiarch --disable-multilib $(patsubst %,--with-%-include=${PREFIX}/include,${libs}) $(patsubst %,--with-%-lib=${PREFIX}/lib64,${libs}) --enable-languages=c,c++,fortran,lto --enable-plugin --enable-initfini-array --enable-gold=default --enable-libstdcxx-time --with-linker-hash-style=gnu --disable-libgcj ${conf.gcc.5.1.0.redhat}
+conf.gcc.5.1.0 := --disable-libunwind-exceptions --with-system-zlib --enable-__cxa_atexit --enable-shared --enable-threads=posix --enable-checking=release --disable-multiarch --disable-multilib $(patsubst %,--with-%-include=${PREFIX}/include,${libs}) $(patsubst %,--with-%-lib=${PREFIX}/lib64,${libs}) --enable-languages=c,c++,fortran,lto --enable-plugin --enable-initfini-array --enable-gold=default --enable-libstdcxx-time --with-linker-hash-style=gnu --disable-libgcj --with-default-libstdcxx-abi=OPTION=gcc4-compatible ${conf.gcc.5.1.0.redhat}
 
 conf.gcc.5.2.0 := ${conf.gcc.5.1.0}
 
