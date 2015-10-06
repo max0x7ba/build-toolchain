@@ -17,7 +17,8 @@ all : install
 
 export PREFIX:=${prefix}/python-${python_version}
 CPPFLAGS := -fmessage-length=0 -I${prefix}/openssl-${openssl_version}/include
-LDFLAGS := -Wl,-rpath,${PREFIX}/lib64 $(addsuffix ${prefix}/openssl-${openssl_version}/lib64,-L -Wl,-rpath,)
+LINKFORSHARED := $(addsuffix ${PREFIX}/lib64,-L -Wl,-rpath=)
+LDFLAGS := -Wl,-rpath,${PREFIX}/lib64 $(addsuffix ${prefix}/openssl-${openssl_version}/lib64,-L -Wl,-rpath=)
 
 # Adding a new package is a 3-step process:
 # 1. Add the package name to ${packages} variable.
@@ -204,7 +205,7 @@ uninstall.% :
 
 build.python : | ${python.src}
 	${echo_action}
-	cd ${python.src} && ./configure --prefix=${PREFIX} --libdir=${PREFIX}/lib64 --enable-unicode=ucs4 CPPFLAGS="${cppflags}" LDFLAGS="${LDFLAGS}"
+	cd ${python.src} && ./configure --prefix=${PREFIX} --libdir=${PREFIX}/lib64 --enable-shared --enable-unicode=ucs4 CPPFLAGS="${cppflags}" LDFLAGS="${LDFLAGS}" LINKFORSHARED="${LINKFORSHARED}"
 	sed -i -e 's/\(#define _POSIX_C_SOURCE [0-9]\+L\)/#ifndef _POSIX_C_SOURCE\n\1\n#endif/' -e 's/\(#define _XOPEN_SOURCE [0-9]\+\)/#ifndef _XOPEN_SOURCE\n\1\n#endif/' ${python.src}/pyconfig.h
 	${MAKE} -C ${python.src}
 	touch $@
@@ -289,7 +290,7 @@ uninstall : $(packages:%=uninstall.%)
 install : $(packages:%=install.%)
 
 clean :
-	rm -rf $(foreach p,${packages},${${p}.src}) install.* build.*
+	rm -rf ${PREFIX} $(foreach p,${packages},${${p}.src}) install.* build.*
 
 .PHONY : download help dbg all clean build install uninstall uninstall.% clean.% install-prerequisites
 .SECONDARY :
