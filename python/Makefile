@@ -166,8 +166,6 @@ install-prerequisites :
 ################################################################################
 # Generic rules for Distutils/setup.py based packages.
 
-cppflags := ${CPPFLAGS}
-
 install_lockfile := /tmp/$(shell date +make-python-%s-%N.lock)
 
 before_install = lockfile -1 ${install_lockfile}; find ${PREFIX} -type f > install.${1}.before
@@ -181,7 +179,7 @@ symlink = $(call symlink.bin,${1})
 
 build.% : install.python install.setuptools | $${$$*.src}
 	${echo_action}
-	(cd ${$*.src} && CPPFLAGS="${cppflags}" LDFLAGS="${LDFLAGS}" ${PREFIX}/bin/python setup.py ${build.flags.$*} build) | tee $@~; exit $${PIPESTATUS[0]}
+	(cd ${$*.src} && CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" ${PREFIX}/bin/python setup.py ${build.flags.$*} build) | tee $@~; exit $${PIPESTATUS[0]}
 	mv $@~ $@
 
 clean.% :
@@ -191,7 +189,7 @@ clean.% :
 install.% : build.%
 	${echo_action}
 	$(call before_install,$*)
-	cd ${$*.src} && CPPFLAGS="${cppflags}" LDFLAGS="${LDFLAGS}" ${PREFIX}/bin/python setup.py install
+	cd ${$*.src} && CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" ${PREFIX}/bin/python setup.py install
 	$(call symlink,$*)
 	$(call after_install,$*)
 
@@ -205,7 +203,7 @@ uninstall.% :
 
 build.python : | ${python.src}
 	${echo_action}
-	cd ${python.src} && ./configure --prefix=${PREFIX} --libdir=${PREFIX}/lib64 --enable-shared --enable-unicode=ucs4 CPPFLAGS="${cppflags}" LDFLAGS="${LDFLAGS}" LINKFORSHARED="${LINKFORSHARED}"
+	cd ${python.src} && ./configure --prefix=${PREFIX} --libdir=${PREFIX}/lib64 --enable-shared --enable-unicode=ucs4 CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" LINKFORSHARED="${LINKFORSHARED}"
 	sed -i -e 's/\(#define _POSIX_C_SOURCE [0-9]\+L\)/#ifndef _POSIX_C_SOURCE\n\1\n#endif/' -e 's/\(#define _XOPEN_SOURCE [0-9]\+\)/#ifndef _XOPEN_SOURCE\n\1\n#endif/' ${python.src}/pyconfig.h
 	${MAKE} -C ${python.src}
 	touch $@
