@@ -6,7 +6,7 @@ This directory contains makefiles for an in-house toolchain that currenly includ
 
 Several toolchains can be installed at the same time.
 
-The compiler and binaries produced by it have rpath set, executing them does not require setting PATH and LD_LIBRARY_PATH.
+The compiler and binaries produced by it have RUNPATH set, executing them does not require setting LD_LIBRARY_PATH.
 
 Prerequisites
 =======
@@ -19,9 +19,8 @@ Make sure that PATH is set to standard paths /usr/bin:/bin and LD_LIBRARY_PATH i
 
 Increment the number in file PREFIX. And then invoke:
 
-$ export PATH=/usr/bin:/bin
 $ mkdir -p `cat PREFIX`
 $ sudo chown $USER `cat PREFIX`
 $ make clean
 $ make download
-$ make -j12 </dev/null
+$ make -j8 </dev/null

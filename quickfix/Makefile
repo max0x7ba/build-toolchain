@@ -30,7 +30,6 @@ install.quickfix.${quickfix_version} : build.quickfix.${quickfix_version}
 quickfix-${quickfix_version}-src : ${DOWNLOAD_DIR}/quickfix-${quickfix_version}.tar.gz
 	tar xf $<
 	sed -i.original -e 's/-std=c++0x/-std=gnu++14/g' quickfix-${quickfix_version}/configure.ac
-	cd quickfix-${quickfix_version} && patch -p1 < ../NextExpectedMsgSeqNum.patch
 	mv quickfix-${quickfix_version} $@
 
 ${DOWNLOAD_DIR}/quickfix-${quickfix_version}.tar.gz : | ${DOWNLOAD_DIR}
