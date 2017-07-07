@@ -3,8 +3,8 @@ include ../versions.mk
 PREFIX := ${prefix}/emacs-${emacs_version}
 
 CPPFLAGS := -pthread -fmessage-length=0
-CFLAGS :=
-CXXFLAGS := -std=gnu++14
+CFLAGS := -O3
+CXXFLAGS := -std=gnu++14 -O3
 LDFLAGS :=
 
 all : install.emacs.${emacs_version}
